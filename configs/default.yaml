@@ -1,0 +1,79 @@
+# ProctorVision — default configuration
+# ── Performance-tuned for real-time CPU use ──────────────────────────────
+# Expected FPS after these changes:
+#   Before: ~2–3 fps  (ResNet-50 gaze + YOLO640 + full-res frames)
+#   After:  ~15–25 fps (heuristic gaze + YOLO320 + 480px inference frames)
+
+session:
+  session_id: null            # auto-generated UUID if null
+  privacy_mode: true
+  output_dir: "./outputs"
+  log_level: "INFO"
+
+camera:
+  source: 0
+  width: 640
+  height: 480
+  fps: 30
+  buffer_size: 5
+
+models:
+  mediapipe:
+    model_path: "./models/face_landmarker.task"
+    num_faces: 2
+    min_detection_confidence: 0.5
+    min_tracking_confidence: 0.5
+
+  gaze:
+    model_path: "./models/L2CSNet_gaze360.pkl"
+
+    # ── PERFORMANCE SWITCH ────────────────────────────────────────────
+    # use_heuristic: true  → iris-geometry (~0 ms, ±15° accuracy) ✓ FAST
+    # use_heuristic: false → L2CS-Net ResNet-50 (~80 ms, ±5°)    ✗ SLOW on CPU
+    use_heuristic: true          # << SET TO TRUE FOR REAL-TIME WEBCAM
+
+    # Only used when use_heuristic: false
+    # Reducing from 448 → 224 halves neural-net inference time
+    input_size: 224
+
+    onnx_path: "./models/l2cs_net.onnx"
+    use_onnx: false
+    num_bins: 90
+    device: "cpu"
+
+  yolo:
+    model_path: "./models/yolo11n.pt"
+    onnx_path: "./models/yolo11n.onnx"
+    use_onnx: false
+    confidence: 0.45
+    iou_threshold: 0.45
+
+    # ── PERFORMANCE SWITCH ────────────────────────────────────────────
+    # 320 → ~4× faster than 640, ~5% mAP drop (fine for proctoring use)
+    # 416 → middle ground if 320 misses too many small objects
+    # 640 → maximum accuracy, slowest
+    input_size: 320              # << 320 recommended for CPU real-time
+
+    device: "cpu"
+    use_custom_classes: false
+
+inference:
+  # frame_skip: 1 = process every frame (recommended with heuristic gaze)
+  # frame_skip: 2 = process every 2nd frame (use if still slow)
+  frame_skip: 1
+
+  # Width frames are resized to before inference (saves time on all models)
+  # 480 → good balance; 360 → faster but loses small object detail
+  infer_width: 480
+
+  batch_size: 1
+
+calibration:
+  duration_per_point: 1.5
+  num_points: 5
+  fov_horizontal_deg: 60.0
+  fov_vertical_deg: 40.0
+
+performance:
+  use_openvino: false
+  use_tensorrt: false

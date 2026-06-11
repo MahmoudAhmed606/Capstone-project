@@ -1,0 +1,106 @@
+{
+  "session_id": "6e7eea32-9dd1-42db-aca4-5214b286045d",
+  "session_start": "2026-05-08T20:23:38.234983+00:00",
+  "total_events": 11,
+  "event_counts": {
+    "gaze_away": 11
+  },
+  "high_confidence_violations": [
+    {
+      "timestamp": "2026-05-08T20:23:46.922417+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 23,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 32.84,
+        "pitch_deg": 6.67
+      }
+    },
+    {
+      "timestamp": "2026-05-08T20:23:49.919004+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 76,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 32.53,
+        "pitch_deg": 1.67
+      }
+    },
+    {
+      "timestamp": "2026-05-08T20:24:11.968972+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 413,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 45.0,
+        "pitch_deg": 1.67
+      }
+    },
+    {
+      "timestamp": "2026-05-08T20:24:14.961608+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 474,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 30.4,
+        "pitch_deg": -0.0
+      }
+    },
+    {
+      "timestamp": "2026-05-08T20:24:17.960545+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 517,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 45.0,
+        "pitch_deg": 3.7
+      }
+    },
+    {
+      "timestamp": "2026-05-08T20:24:21.005018+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 568,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 44.03,
+        "pitch_deg": 1.67
+      }
+    },
+    {
+      "timestamp": "2026-05-08T20:24:24.015059+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 623,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 25.81,
+        "pitch_deg": 2.86
+      }
+    },
+    {
+      "timestamp": "2026-05-08T20:25:20.994744+00:00",
+      "type": "gaze_away",
+      "confidence": 1.0,
+      "frame_index": 1529,
+      "bbox": null,
+      "details": {
+        "trigger": "angle",
+        "yaw_deg": 34.36,
+        "pitch_deg": 7.37
+      }
+    }
+  ]
+}

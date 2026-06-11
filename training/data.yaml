@@ -1,0 +1,50 @@
+# YOLO training dataset configuration
+# Compatible with Ultralytics YOLO format.
+#
+# Class list matches the proctoring target classes.
+# Use train_yolo.py to launch a fine-tuning run.
+
+path: ./datasets/proctor         # root dataset directory
+train: images/train              # relative to path
+val:   images/val
+test:  images/test               # optional
+
+nc: 7   # number of classes
+
+names:
+  0: person
+  1: mobile
+  2: paper
+  3: calculator
+  4: book
+  5: earphones
+  6: laptop
+
+# Dataset sources (download separately and place under datasets/proctor):
+#
+# person       — COCO (https://cocodataset.org)
+# mobile/phone — Open Images V7, COCO (cell phone class)
+# paper        — Objects365, custom annotation
+# calculator   — Open Images V7
+# book         — Open Images V7, COCO
+# earphones    — Open Images V7, custom annotation
+# laptop       — COCO, Open Images V7
+#
+# For COCO-format datasets, convert with:
+#   python utils/coco_to_yolo.py --source <coco_json> --dest datasets/proctor
+#
+# Recommended minimum per class: 500 images (train), 100 (val)
+
+# Augmentation hints for training/train_yolo.py
+augmentation:
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 5.0
+  translate: 0.1
+  scale: 0.5
+  flipud: 0.0
+  fliplr: 0.5
+  mosaic: 1.0
+  mixup: 0.1
+  copy_paste: 0.0

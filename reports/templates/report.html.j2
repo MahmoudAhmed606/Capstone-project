@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proctoring Report — {{ session_id }}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px; color: #1a1a1a; background: #f5f5f5; padding: 32px;
+    }
+    .page { max-width: 900px; margin: 0 auto; background: #fff;
+            border-radius: 10px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+    h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+    .subtitle { color: #666; font-size: 13px; margin-bottom: 28px; }
+    .meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
+    .card { background: #f9f9f9; border: 1px solid #e5e5e5; border-radius: 8px;
+            padding: 16px; }
+    .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+                   color: #888; margin-bottom: 6px; }
+    .card .value { font-size: 24px; font-weight: 600; }
+    .card .value.danger { color: #c0392b; }
+    .card .value.ok     { color: #27ae60; }
+    h2 { font-size: 15px; font-weight: 600; margin: 28px 0 12px; border-bottom: 1px solid #eee;
+         padding-bottom: 6px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .bar-label { width: 160px; font-size: 12px; color: #444; flex-shrink: 0; }
+    .bar-track { flex: 1; background: #eee; border-radius: 4px; height: 16px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; background: #3b82f6; }
+    .bar-fill.suspicious { background: #ef4444; }
+    .bar-fill.gaze       { background: #f59e0b; }
+    .bar-fill.multiple   { background: #8b5cf6; }
+    .bar-fill.face       { background: #6b7280; }
+    .bar-fill.low_vis    { background: #0ea5e9; }
+    .bar-count { font-size: 12px; color: #555; min-width: 28px; text-align: right; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    th { text-align: left; padding: 8px 10px; background: #f0f0f0;
+         font-weight: 600; font-size: 11px; letter-spacing: .04em; color: #555; }
+    td { padding: 7px 10px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 12px;
+      font-size: 11px; font-weight: 500;
+    }
+    .badge.gaze_away        { background: #fef3c7; color: #92400e; }
+    .badge.multiple_persons { background: #ede9fe; color: #4c1d95; }
+    .badge.suspicious_object{ background: #fee2e2; color: #7f1d1d; }
+    .badge.face_missing     { background: #f1f5f9; color: #334155; }
+    .badge.low_visibility   { background: #e0f2fe; color: #0c4a6e; }
+    .badge.object_detected  { background: #f0fdf4; color: #14532d; }
+    .footer { margin-top: 36px; font-size: 11px; color: #aaa; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <h1>Proctoring Session Report</h1>
+  <p class="subtitle">Session ID: {{ session_id }} &nbsp;·&nbsp; Generated: {{ generated_at }}</p>
+
+  <div class="meta">
+    <div class="card">
+      <div class="label">Session start</div>
+      <div class="value" style="font-size:15px">{{ session_start }}</div>
+    </div>
+    <div class="card">
+      <div class="label">Total events</div>
+      <div class="value {% if total_events > 0 %}danger{% else %}ok{% endif %}">{{ total_events }}</div>
+    </div>
+    <div class="card">
+      <div class="label">High-confidence violations</div>
+      <div class="value {% if high_conf_count > 0 %}danger{% else %}ok{% endif %}">{{ high_conf_count }}</div>
+    </div>
+  </div>
+
+  <h2>Event distribution</h2>
+  {% set max_count = event_counts.values() | max | default(1) %}
+  {% set color_map = {
+    "gaze_away":         "gaze",
+    "multiple_persons":  "multiple",
+    "suspicious_object": "suspicious",
+    "face_missing":      "face",
+    "low_visibility":    "low_vis",
+    "object_detected":   ""
+  } %}
+  {% for event_type, count in event_counts.items() %}
+  <div class="bar-row">
+    <span class="bar-label">{{ event_type }}</span>
+    <div class="bar-track">
+      <div class="bar-fill {{ color_map.get(event_type, '') }}"
+           style="width: {{ (count / max_count * 100) | round(1) }}%"></div>
+    </div>
+    <span class="bar-count">{{ count }}</span>
+  </div>
+  {% endfor %}
+  {% if not event_counts %}
+    <p style="color:#888; font-style:italic">No events recorded.</p>
+  {% endif %}
+
+  <h2>Event log</h2>
+  {% if events %}
+  <table>
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Type</th>
+        <th>Confidence</th>
+        <th>Frame</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for e in events %}
+      <tr>
+        <td>{{ e.timestamp }}</td>
+        <td><span class="badge {{ e.type }}">{{ e.type }}</span></td>
+        <td>{{ "%.2f"|format(e.confidence) }}</td>
+        <td>{{ e.frame_index }}</td>
+        <td style="font-size:11px; color:#555">{{ e.details | tojson }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:#888; font-style:italic">No events recorded.</p>
+  {% endif %}
+
+  <div class="footer">
+    ProctorVision · Privacy-first local inference · No cloud dependency
+  </div>
+</div>
+</body>
+</html>

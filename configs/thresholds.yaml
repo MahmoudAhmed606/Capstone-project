@@ -1,0 +1,64 @@
+# ProctorVision — event detection thresholds
+# Calibrated for iris-geometry heuristic mode on a weak camera.
+
+events:
+  gaze_away:
+    # Heuristic realistic range is ±25°, so old 20° threshold was nearly
+    # unreachable. Lowered to values the iris geometry can reliably produce.
+    duration_seconds: 1.5
+    cooldown_seconds: 3.0
+    min_confidence: 0.20         # heuristic confidence is inherently lower
+    yaw_threshold_deg: 10.0      # was 20 — iris heuristic peaks at ~22°
+    pitch_threshold_deg: 8.0     # was 18
+
+    # How many consecutive frames of None gaze (iris hidden) are allowed
+    # before the onset timer resets. At 15 fps, 10 frames ≈ 0.6 s grace.
+    # Prevents a single blink or brief occlusion from restarting the clock.
+    none_grace_frames: 10
+
+    # Eyes-hidden path: face present but iris undetectable for this long
+    eyes_hidden_duration_seconds: 1.5
+
+  multiple_persons:
+    cooldown_seconds: 5.0
+    min_confidence: 0.60
+    # Minimum bounding-box area in pixels to count as a real person
+    # (rejects hands, reflections, and tiny background figures)
+    min_bbox_area: 1536
+
+  suspicious_object:
+    cooldown_seconds: 4.0
+    min_confidence: 0.55
+    classes:
+      - mobile
+      - cell_phone
+      - paper
+      - calculator
+      - book
+      - earphones
+      - laptop
+
+  face_missing:
+    duration_seconds: 1.5
+    cooldown_seconds: 2.0
+
+  low_visibility:
+    # Thresholds set relative to what a weak camera produces normally.
+    # Run diagnose_camera.py to find your camera's actual floor values.
+    # Rule: threshold = floor_value * 0.40 for brightness,
+    #                   floor_value * 0.30 for sharpness.
+    brightness_threshold: 30     # only truly dark room
+    blur_threshold: 12           # only severely out-of-focus / lens covered
+    duration_seconds: 2.0        # must persist — ignore brief dark frames
+    cooldown_seconds: 8.0        # don't spam after it fires
+
+snapshot:
+  save_on_violation: true
+  min_confidence_for_save: 0.75
+  max_resolution: 320
+
+# NOTE: thresholds updated for eye-movement detection (not face-turn only)
+# gaze_away section already set above — confirming values here:
+#   yaw_threshold_deg:   10.0   (was 12 — half-span heuristic reaches ~22° for eye gaze)
+#   pitch_threshold_deg:  8.0   (was  9)
+#   min_confidence:       0.20  (lowered — heuristic confidence for eye-only movement)
